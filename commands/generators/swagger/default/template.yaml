@@ -1,0 +1,274 @@
+  /{tables}:
+    get:
+      tags:
+      - "{Tag}"
+      summary: Gets collection of {Tables}
+      description: Returns a list containing all {Tables} by criteria
+      parameters:
+      - $ref: "#/components/parameters/select"
+      - $ref: "#/components/parameters/filter"
+      - $ref: "#/components/parameters/pagination"
+      - $ref: "#/components/parameters/sort"
+      security: []
+      responses:
+        200:
+          description: A list of {Tables}
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/{TableNoSpace}"
+          headers:
+            X-Pagination-ItemsCount:
+              description: "Total number of items in collection."
+              schema:
+                type: "integer"
+            X-Pagination-PageNumber:
+              description: "Current page number"
+              schema:
+                type: "integer"
+            X-Pagination-PageSize:
+              description: "Number of items per one page"
+              schema:
+                type: "integer"
+            X-Pagination-PageMax:
+              description: "Maximum number of pages that can be created for this collection and this number of items per page"
+              schema:
+                type: "integer"
+
+        401:
+          $ref: "#/components/schemas/Error401"
+  /{urlId}/{id}:
+    get:
+      tags:
+      - "{Tag}"
+      summary: "Gets one {Table} by Id"
+      description: "Returns an object for {table} id param"
+      parameters:
+      - name: "id"
+        in: path
+        description: "Primary key value"
+        required: true
+        schema:
+          type: integer
+          format: int32
+      - $ref: "#/components/parameters/select"
+      security: []
+      responses:
+        200:
+          description: "One {Table}"
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/{TableNoSpace}Response"
+        401:
+          $ref: "#/components/schemas/Error401"
+        404:
+          description: "{Table} does not exist in database."
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/ErrorNoData404"
+    put:
+      tags:
+      - "{Tag}"
+      summary: "Update all data for one {table}."
+      description: "Will check if {table} exists. If exists check code, status, and other fields, and update {table} data. If a field is not sent, will be updated to NULL!"
+      parameters:
+      - in: path
+        name: "id"
+        description: "Send {table} id and you will update {table} data for that {table}"
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        description: "Send {Table} Put object"
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/{TableNoSpace}Put'
+      responses:
+        200:
+          description: "{Table} data updated. You will get {table} data back"
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/{TableNoSpace}Response"
+        401:
+          $ref: "#/components/schemas/Error401"
+        404:
+          description: "Id param in URL is not valid. {Table} does not exist in database."
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Error404"
+        422:
+          description: "Validation error:\n- Some param in body is wrong. JsonSchema validation did not pass."
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/ErrorJson422"
+        500:
+          description: "- Other SQL exception"
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Error500"
+        501:
+          description: "- You have sent a status that is out of system bounds\n- You have sent a status that is out of table bounds\n"
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Error501"
+    patch:
+      tags:
+      - "{Tag}"
+      summary: "Update some data for one {table}."
+      description: "Will check if {table} exists. If exists, check code, status, and other fields, and update {table} data. If a field is not sent, will be skip in update. Skiped columns will keep old value."
+      parameters:
+      - in: path
+        name: "id"
+        description: "Send {table} id and you will update {table} data for that {table}"
+        required: true
+        schema:
+          type: integer
+          format: int32
+      requestBody:
+        description: "Send {TableNoSpace} Patch object"
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/{TableNoSpace}Patch'
+      responses:
+        200:
+          description: "{Table} data updated. You will get {table} data back."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/{TableNoSpace}Response"
+        401:
+          $ref: "#/components/schemas/Error401"
+        404:
+          description: "Id param in URL is not valid. {Table} does not exist in database."
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Error404"
+        422:
+          description: "Validation error:\n- Some param in body is wrong. JsonSchema validation did not pass."
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/ErrorJson422"
+        500:
+          description: "- Other SQL exception"
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Error500"
+        501:
+          description: "- You have sent a status that is out of system bounds\n- You have sent a status that is out of table bounds\n"
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Error501"
+    delete:
+      tags:
+      - "{Tag}"
+      summary: "Delete {Table} from database by changing the status to DELETED."
+      description: "Will check if {Table} exists. If exists, will be 'deleted' from database. This is 'safe' delete, will just change status of {Table} to be: DELETED"
+      parameters:
+      - in: path
+        name: "id"
+        description: "Send {table} id and you will update {Table} status for that {Table}"
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        200:
+          description: "{Table} deleted. You will get {Table} data back."
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/{TableNoSpace}Response"
+        401:
+          $ref: "#/components/schemas/Error401"
+        404:
+          description: "Id param in URL is not valid. {Table} does not exist in database."
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Error404"
+  /{table}:
+    post:
+      tags:
+      - "{Tag}"
+      summary: "Create new {table}."
+      description: "Will create new {table}."
+      requestBody:
+        description: "Send {Table}Post object"
+        required: true
+        content:
+          'application/json':
+            schema:
+              $ref: '#/components/schemas/{TableNoSpace}Post'
+      responses:
+        201:
+          description: "New {Table} created. You will get {table} data back, including new {table} id."
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/{TableNoSpace}Response"
+        401:
+          $ref: "#/components/schemas/Error401"
+        422:
+          description: "Validation error:\n- Some param in body is wrong. JsonSchema validation not pass."
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/ErrorJson422"
+        501:
+          description: "- You have sent a status that is out of system bounds\n- You have sent a status that is out of table bounds\n"
+          content:
+            application/json:
+              schema:
+                type: object
+                items:
+                  $ref: "#/components/schemas/Error501"
