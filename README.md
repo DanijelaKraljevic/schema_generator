@@ -3,7 +3,7 @@
     <br>
 </p>
 
-Aplication contains several console commands which generate [json schema](https://json-schema.org/) and open API (po [OAS 3](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) ) docs.
+Application contains several console commands which generate [json schema](https://json-schema.org/) and open API (po [OAS 3](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md) ) docs.
 
 
 CONFIGURATION
